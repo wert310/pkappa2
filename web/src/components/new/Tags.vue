@@ -18,7 +18,7 @@
         <tr v-for="tag in groupedTags[tagType.key]" :key="tag.Name">
           <td>
             <v-icon>mdi-circle-small</v-icon
-            >{{ tag.Name.substring(1 + tagType.key.length) }}
+            ><v-chip :color="tag.Color" small>{{ tag.Name.substring(1 + tagType.key.length) }}</v-chip>
           </td>
           <td>{{ tag.Definition }}</td>
           <td>
@@ -38,9 +38,7 @@
                   :to="{
                     name: 'search',
                     query: {
-                      q: `${tagType.key}:${tag.Name.substr(
-                        tagType.key.length + 1
-                      )}`,
+                      q: $options.filters.tagForURI(tag.Name),
                     },
                   }"
                   ><v-icon>mdi-magnify</v-icon></v-btn
@@ -59,6 +57,18 @@
                 >
               </template>
               <span>Use Query</span>
+            </v-tooltip>
+            <v-tooltip bottom>
+              <template #activator="{ on, attrs }">
+                <v-btn
+                  v-bind="attrs"
+                  v-on="on"
+                  icon
+                  @click="showTagColorChangeDialog(tag.Name)"
+                  ><v-icon>mdi-palette</v-icon></v-btn
+                >
+              </template>
+              <span>Change Color</span>
             </v-tooltip>
             <v-tooltip bottom>
               <template #activator="{ on, attrs }">
@@ -121,6 +131,9 @@ export default {
     },
     setQuery(query) {
       EventBus.$emit("setSearchTerm", { searchTerm: query });
+    },
+    showTagColorChangeDialog(tagId) {
+      EventBus.$emit("showTagColorChangeDialog", { tagId });
     },
   },
 };
