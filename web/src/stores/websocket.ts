@@ -115,8 +115,11 @@ export function setupWebsocket() {
         connect();
       }, reconnectTimeout);
     };
+    const updateInterval = 500;
+    let lastUpdate = Date.now();
     ws.onmessage = (event) => {
       if (typeof event.data !== "string") return;
+      const now = Date.now();
       const store = useRootStore();
       const streamStore = useStreamStore();
       const streamsStore = useStreamsStore();
@@ -159,6 +162,8 @@ export function setupWebsocket() {
             );
           break;
         case "tagUpdated":
+          if (now - lastUpdate >= updateInterval) lastUpdate = now;
+          else return; // eslint-disable-next-line no-fallthrough
         case "tagEvaluated":
           if (!isTagEvent(e)) {
             console.error("Invalid tag event:", e);
